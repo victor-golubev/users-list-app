@@ -30,7 +30,6 @@ const Home = () => {
     handleSubmit,
   } = useUserModal(handleModalSubmit);
 
-  // Мемоизируем Set для быстрой проверки O(1) вместо O(n)
   const favoriteIds = useMemo(() => {
     return new Set(favorites.map((fav) => fav.id));
   }, [favorites]);

@@ -10,7 +10,6 @@ export const useFetchUsers = (setAllUsersData) => {
       try {
         setLoading(true);
 
-        // Проверяем кэш
         const cachedUsers = userService.getAllUsers();
 
         if (cachedUsers.length > 0) {
@@ -19,7 +18,6 @@ export const useFetchUsers = (setAllUsersData) => {
           return;
         }
 
-        // Загружаем с API через сервис
         const users = await userService.fetchUsersFromAPI();
         userService.saveAllUsers(users);
         setAllUsersData(users);

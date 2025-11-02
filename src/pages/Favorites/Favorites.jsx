@@ -30,7 +30,6 @@ const Favorites = () => {
     handleSubmit,
   } = useUserModal(handleModalSubmit);
 
-  // Используем сервис для поиска + мемоизация
   const filteredFavorites = useMemo(() => {
     return userService.searchUsers(favorites, searchQuery);
   }, [favorites, searchQuery]);

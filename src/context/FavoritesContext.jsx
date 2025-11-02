@@ -13,13 +13,11 @@ export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
 
-  // Загрузка при инициализации
   useEffect(() => {
     setFavorites(userService.getFavorites());
     setAllUsers(userService.getAllUsers());
   }, []);
 
-  // Синхронизация избранных с localStorage
   useEffect(() => {
     if (favorites.length >= 0) {
       userService.saveFavorites(favorites);
@@ -35,10 +33,8 @@ export const FavoritesProvider = ({ children }) => {
   }, []);
 
   const updateFavorite = useCallback((id, updatedUser) => {
-    // Обновляем в избранном
     setFavorites((prev) => userService.updateUser(prev, id, updatedUser));
 
-    // Обновляем в allUsers
     setAllUsers((prev) => {
       const updated = userService.updateUser(prev, id, updatedUser);
       userService.saveAllUsers(updated);

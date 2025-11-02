@@ -1,28 +1,22 @@
-// Бизнес-логика работы с пользователями
 export const userService = {
-  // Получить всех пользователей из localStorage
   getAllUsers: () => {
     const cached = localStorage.getItem("allUsers");
     return cached ? JSON.parse(cached) : [];
   },
 
-  // Сохранить всех пользователей в localStorage
   saveAllUsers: (users) => {
     localStorage.setItem("allUsers", JSON.stringify(users));
   },
 
-  // Получить избранных из localStorage
   getFavorites: () => {
     const cached = localStorage.getItem("favorites");
     return cached ? JSON.parse(cached) : [];
   },
 
-  // Сохранить избранных в localStorage
   saveFavorites: (favorites) => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   },
 
-  // Загрузить пользователей с API
   fetchUsersFromAPI: async () => {
     const response = await fetch("https://randomuser.me/api/?results=12");
     if (!response.ok) {
@@ -39,25 +33,21 @@ export const userService = {
     }));
   },
 
-  // Добавить в избранное
   addToFavorites: (favorites, user) => {
     if (favorites.find((u) => u.id === user.id)) {
-      return favorites; // Уже есть
+      return favorites;
     }
     return [...favorites, user];
   },
 
-  // Удалить из избранного
   removeFromFavorites: (favorites, userId) => {
     return favorites.filter((u) => u.id !== userId);
   },
 
-  // Обновить пользователя
   updateUser: (users, userId, updatedData) => {
     return users.map((u) => (u.id === userId ? { ...u, ...updatedData } : u));
   },
 
-  // Поиск пользователей
   searchUsers: (users, query) => {
     if (!query.trim()) return users;
 
@@ -69,7 +59,6 @@ export const userService = {
     );
   },
 
-  // Создать нового пользователя
   createUser: (userData) => {
     return {
       ...userData,
