@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
+import { userService } from "../services/userService";
 
-export const useFetchUsers = () => {
-  const [users, setUsers] = useState([]);
+export const useFetchUsers = (setAllUsersData) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -10,30 +10,19 @@ export const useFetchUsers = () => {
       try {
         setLoading(true);
 
-        const cachedUsers = localStorage.getItem("allUsers");
+        // Проверяем кэш
+        const cachedUsers = userService.getAllUsers();
 
-        if (cachedUsers) {
-          setUsers(JSON.parse(cachedUsers));
+        if (cachedUsers.length > 0) {
+          setAllUsersData(cachedUsers);
           setLoading(false);
           return;
         }
 
-        const response = await fetch("https://randomuser.me/api/?results=12");
-        if (!response.ok) {
-          throw new Error("Ошибка загрузки данных");
-        }
-        const data = await response.json();
-
-        const transformedUsers = data.results.map((user, index) => ({
-          id: index + 1,
-          name: `${user.name.first} ${user.name.last}`,
-          username: user.login.username,
-          email: user.email,
-          age: user.dob.age,
-        }));
-
-        localStorage.setItem("allUsers", JSON.stringify(transformedUsers));
-        setUsers(transformedUsers);
+        // Загружаем с API через сервис
+        const users = await userService.fetchUsersFromAPI();
+        userService.saveAllUsers(users);
+        setAllUsersData(users);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -42,7 +31,7 @@ export const useFetchUsers = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [setAllUsersData]);
 
-  return { users, loading, error };
+  return { loading, error };
 };

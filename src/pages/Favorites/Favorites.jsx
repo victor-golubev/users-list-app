@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useFavorites } from "../../context/FavoritesContext";
+import { useUserModal } from "../../hooks/useUserModal";
+import { userService } from "../../services/userService";
 import UserCard from "../../components/UserCard/UserCard";
 import Modal from "../../components/Modal/Modal";
 import UserForm from "../../components/UserForm/UserForm";
@@ -9,44 +11,35 @@ const Favorites = () => {
   const { favorites, removeFavorite, updateFavorite, addFavorite } =
     useFavorites();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
 
-  const filteredFavorites = favorites.filter(
-    (user) =>
-      (user.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
-      (user.username?.toLowerCase() || "").includes(searchQuery.toLowerCase())
-  );
-
-  const handleEdit = (user) => {
-    setEditingUser(user);
-    setIsModalOpen(true);
-  };
-
-  const handleCreate = () => {
-    setEditingUser(null);
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = (data) => {
+  const handleModalSubmit = (data, editingUser) => {
     if (editingUser) {
       updateFavorite(editingUser.id, data);
     } else {
-      const newUser = {
-        ...data,
-        id: Date.now(),
-      };
+      const newUser = userService.createUser(data);
       addFavorite(newUser);
     }
-    setIsModalOpen(false);
-    setEditingUser(null);
   };
+
+  const {
+    isModalOpen,
+    editingUser,
+    openModalForEdit,
+    openModalForCreate,
+    closeModal,
+    handleSubmit,
+  } = useUserModal(handleModalSubmit);
+
+  // Используем сервис для поиска + мемоизация
+  const filteredFavorites = useMemo(() => {
+    return userService.searchUsers(favorites, searchQuery);
+  }, [favorites, searchQuery]);
 
   return (
     <div className="favorites">
       <div className="favorites-header">
         <h2>Избранные пользователи</h2>
-        <button className="btn-create" onClick={handleCreate}>
+        <button className="btn-create" onClick={openModalForCreate}>
           Создать пользователя
         </button>
       </div>
@@ -72,7 +65,7 @@ const Favorites = () => {
               key={user.id}
               user={user}
               onRemove={removeFavorite}
-              onEdit={handleEdit}
+              onEdit={openModalForEdit}
               isFavorite={true}
             />
           ))}
@@ -80,11 +73,11 @@ const Favorites = () => {
       )}
 
       {isModalOpen && (
-        <Modal onClose={() => setIsModalOpen(false)}>
+        <Modal onClose={closeModal}>
           <UserForm
             user={editingUser}
             onSubmit={handleSubmit}
-            onCancel={() => setIsModalOpen(false)}
+            onCancel={closeModal}
           />
         </Modal>
       )}
