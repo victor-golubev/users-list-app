@@ -10,13 +10,12 @@ import { userService } from "../services/userService";
 const FavoritesContext = createContext();
 
 export const FavoritesProvider = ({ children }) => {
-  const [favorites, setFavorites] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
-
-  useEffect(() => {
-    setFavorites(userService.getFavorites());
-    setAllUsers(userService.getAllUsers());
-  }, []);
+  const [favorites, setFavorites] = useState(
+    () => userService.getFavorites() || []
+  );
+  const [allUsers, setAllUsers] = useState(
+    () => userService.getAllUsers() || []
+  );
 
   useEffect(() => {
     if (favorites.length >= 0) {

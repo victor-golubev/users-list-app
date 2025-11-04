@@ -6,6 +6,7 @@ export const useFetchUsers = (setAllUsersData) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchUsers = async () => {
       try {
         setLoading(true);
@@ -20,15 +21,23 @@ export const useFetchUsers = (setAllUsersData) => {
 
         const users = await userService.fetchUsersFromAPI();
         userService.saveAllUsers(users);
-        setAllUsersData(users);
+        if (isMounted) {
+          setAllUsersData(users);
+        }
       } catch (err) {
-        setError(err.message);
+        if (isMounted) {
+          setError(err.message);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchUsers();
+
+    return () => (isMounted = false);
   }, [setAllUsersData]);
 
   return { loading, error };

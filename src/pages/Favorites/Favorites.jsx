@@ -72,7 +72,7 @@ const Favorites = () => {
       )}
 
       {isModalOpen && (
-        <Modal onClose={closeModal}>
+        <Modal onClose={closeModal} isOpen={isModalOpen}>
           <UserForm
             user={editingUser}
             onSubmit={handleSubmit}

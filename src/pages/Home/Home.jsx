@@ -16,6 +16,7 @@ const Home = () => {
     favorites,
     setAllUsersData,
   } = useFavorites();
+
   const { loading, error } = useFetchUsers(setAllUsersData);
 
   const handleModalSubmit = (data, editingUser) => {
@@ -59,7 +60,7 @@ const Home = () => {
       </div>
 
       {isModalOpen && (
-        <Modal onClose={closeModal}>
+        <Modal onClose={closeModal} isOpen={isModalOpen}>
           <UserForm
             user={editingUser}
             onSubmit={handleSubmit}
