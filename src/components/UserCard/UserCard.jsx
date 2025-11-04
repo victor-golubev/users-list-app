@@ -1,3 +1,4 @@
+import React from "react";
 import "./UserCard.css";
 
 const UserCard = ({ user, onAdd, onRemove, onEdit, isFavorite }) => {
@@ -17,17 +18,25 @@ const UserCard = ({ user, onAdd, onRemove, onEdit, isFavorite }) => {
       </div>
       <div className="user-actions">
         {!isFavorite ? (
-          <button className="btn-add" onClick={() => onAdd(user)}>
+          <button type="button" className="btn-add" onClick={() => onAdd(user)}>
             Добавить в избранное
           </button>
         ) : (
           <>
             {onEdit && (
-              <button className="btn-edit" onClick={() => onEdit(user)}>
+              <button
+                type="button"
+                className="btn-edit"
+                onClick={() => onEdit(user)}
+              >
                 Изменить
               </button>
             )}
-            <button className="btn-delete" onClick={() => onRemove(user.id)}>
+            <button
+              type="button"
+              className="btn-delete"
+              onClick={() => onRemove(user.id)}
+            >
               Удалить
             </button>
           </>
@@ -37,4 +46,4 @@ const UserCard = ({ user, onAdd, onRemove, onEdit, isFavorite }) => {
   );
 };
 
-export default UserCard;
+export default React.memo(UserCard);

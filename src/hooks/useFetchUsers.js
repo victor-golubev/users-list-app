@@ -1,48 +1,44 @@
 import { useState, useEffect } from "react";
+import { userService } from "../services/userService";
 
-export const useFetchUsers = () => {
-  const [users, setUsers] = useState([]);
+export const useFetchUsers = (setAllUsersData) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchUsers = async () => {
       try {
         setLoading(true);
 
-        const cachedUsers = localStorage.getItem("allUsers");
+        const cachedUsers = userService.getAllUsers();
 
-        if (cachedUsers) {
-          setUsers(JSON.parse(cachedUsers));
+        if (cachedUsers.length > 0) {
+          setAllUsersData(cachedUsers);
           setLoading(false);
           return;
         }
 
-        const response = await fetch("https://randomuser.me/api/?results=12");
-        if (!response.ok) {
-          throw new Error("Ошибка загрузки данных");
+        const users = await userService.fetchUsersFromAPI();
+        userService.saveAllUsers(users);
+        if (isMounted) {
+          setAllUsersData(users);
         }
-        const data = await response.json();
-
-        const transformedUsers = data.results.map((user, index) => ({
-          id: index + 1,
-          name: `${user.name.first} ${user.name.last}`,
-          username: user.login.username,
-          email: user.email,
-          age: user.dob.age,
-        }));
-
-        localStorage.setItem("allUsers", JSON.stringify(transformedUsers));
-        setUsers(transformedUsers);
       } catch (err) {
-        setError(err.message);
+        if (isMounted) {
+          setError(err.message);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchUsers();
-  }, []);
 
-  return { users, loading, error };
+    return () => (isMounted = false);
+  }, [setAllUsersData]);
+
+  return { loading, error };
 };

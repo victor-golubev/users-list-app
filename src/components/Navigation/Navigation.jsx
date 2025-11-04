@@ -1,27 +1,29 @@
+import { NavLink } from "react-router-dom";
 import "./Navigation.css";
+import React from "react";
 
-const Navigation = ({ currentPage, setCurrentPage }) => {
+const Navigation = React.memo(() => {
   return (
-    <div className="navigation">
+    <header className="navigation">
       <div className="container">
         <h1>Users List App</h1>
         <nav className="nav-buttons">
-          <button
-            className={currentPage === "home" ? "active" : ""}
-            onClick={() => setCurrentPage("home")}
+          <NavLink
+            to="/"
+            className={({ isActive }) => (isActive ? "active" : "")}
           >
             Главная
-          </button>
-          <button
-            className={currentPage === "favorites" ? "active" : ""}
-            onClick={() => setCurrentPage("favorites")}
+          </NavLink>
+          <NavLink
+            to="/favorites"
+            className={({ isActive }) => (isActive ? "active" : "")}
           >
             Избранное
-          </button>
+          </NavLink>
         </nav>
       </div>
-    </div>
+    </header>
   );
-};
+});
 
 export default Navigation;

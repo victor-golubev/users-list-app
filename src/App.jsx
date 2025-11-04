@@ -1,22 +1,29 @@
-import { useState } from "react";
 import { FavoritesProvider } from "./context/FavoritesContext";
-import Navigation from "./components/Navigation/Navigation";
 import Home from "./pages/Home/Home";
 import Favorites from "./pages/Favorites/Favorites";
 import "./App.css";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Router,
+  Routes,
+} from "react-router-dom";
+import Layout from "./components/Layout/Layout";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState("home");
-
   return (
-    <FavoritesProvider>
-      <div className="app">
-        <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <main className="container">
-          {currentPage === "home" ? <Home /> : <Favorites />}
-        </main>
-      </div>
-    </FavoritesProvider>
+    <BrowserRouter>
+      <FavoritesProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="favorites" element={<Favorites />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </FavoritesProvider>
+    </BrowserRouter>
   );
 }
 

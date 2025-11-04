@@ -1,39 +1,60 @@
-import { createContext, useContext } from "react";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { userService } from "../services/userService";
 
 const FavoritesContext = createContext();
 
 export const FavoritesProvider = ({ children }) => {
-  const [favorites, setFavorites] = useLocalStorage("favorites", []);
+  const [favorites, setFavorites] = useState(
+    () => userService.getFavorites() || []
+  );
+  const [allUsers, setAllUsers] = useState(
+    () => userService.getAllUsers() || []
+  );
 
-  const addFavorite = (user) => {
-    if (!favorites.find((u) => u.id === user.id)) {
-      setFavorites([...favorites, user]);
+  useEffect(() => {
+    if (favorites.length >= 0) {
+      userService.saveFavorites(favorites);
     }
-  };
+  }, [favorites]);
 
-  const removeFavorite = (id) => {
-    setFavorites(favorites.filter((u) => u.id !== id));
-  };
+  const addFavorite = useCallback((user) => {
+    setFavorites((prev) => userService.addToFavorites(prev, user));
+  }, []);
 
-  const updateFavorite = (id, updatedUser) => {
-    setFavorites(
-      favorites.map((u) => (u.id === id ? { ...u, ...updatedUser } : u))
-    );
+  const removeFavorite = useCallback((id) => {
+    setFavorites((prev) => userService.removeFromFavorites(prev, id));
+  }, []);
 
-    const cachedUsers = localStorage.getItem("allUsers");
-    if (cachedUsers) {
-      const allUsers = JSON.parse(cachedUsers);
-      const updatedAllUsers = allUsers.map((u) =>
-        u.id === id ? { ...u, ...updatedUser } : u
-      );
-      localStorage.setItem("allUsers", JSON.stringify(updatedAllUsers));
-    }
-  };
+  const updateFavorite = useCallback((id, updatedUser) => {
+    setFavorites((prev) => userService.updateUser(prev, id, updatedUser));
+
+    setAllUsers((prev) => {
+      const updated = userService.updateUser(prev, id, updatedUser);
+      userService.saveAllUsers(updated);
+      return updated;
+    });
+  }, []);
+
+  const setAllUsersData = useCallback((users) => {
+    setAllUsers(users);
+  }, []);
 
   return (
     <FavoritesContext.Provider
-      value={{ favorites, addFavorite, removeFavorite, updateFavorite }}
+      value={{
+        favorites,
+        allUsers,
+        addFavorite,
+        removeFavorite,
+        updateFavorite,
+        setAllUsersData,
+      }}
     >
       {children}
     </FavoritesContext.Provider>
